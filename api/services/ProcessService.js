@@ -1,5 +1,8 @@
-// ProcessService.js - in api/services
+// ProcessService.js - in api/services\
+const util = require('util')
+
 exports.process = function(json) {
+
     var nameMappings = {
         'ctun' : {
             'dcrt' : 'dcrate',
@@ -201,37 +204,41 @@ exports.process = function(json) {
     for (var k in json) {
         var row = json[k],
         rowNum = parseInt(k);
-        
+
         var rowName = row[0];
-	if (typeof rowName == "undefined") {
-		continue;
-	}
+	    if (typeof rowName == "undefined") {
+		  continue;
+	    }
+
         rowName = rowName.trim();
 
         switch (rowName) {
             case 'PARM':
-                var name = row[1].trim().toLowerCase();
+                var name = trimWhenRequired(row[1])
                 processed.params[name] = {'name': row[1], 'value': row[2]};
                 break;
 
             case 'FMT':
                 processed.fmt.exists = true;
-                var val = row[3].trim().toLowerCase();
-                //console.log("Mapping " + val);
+                
+                var val = trimWhenRequired(row[3])
 
                 if (typeof processed[val] != "undefined") {
                     for (var i in row) {
-                        var p = row[i].trim().toLowerCase();
+                        var p = trimWhenRequired(row[i])
+        
                         if (typeof nameMappings[val] != "undefined" && typeof nameMappings[val][p] != "undefined") {
                             p = nameMappings[val][p];
                         }
-                        //console.log ("Col = " + p);
+                        
                         if (typeof processed[val][p] != "undefined") {
-                            //console.log("Mapped " + p + " to " + (i-4));
                             processed[val][p].col = i - 4;
                         }
                     };
-                    processed[val].mapped = true;
+                    
+                    Object.keys(processed[val]).forEach(function(element, key, _array) {
+                        console.log(val + ": col value for " + element + " is " + util.inspect(processed[val][element]))
+                    })
                 }
 
                 break;
@@ -521,7 +528,7 @@ exports.process = function(json) {
             case 'MODE':
                 if (processed.mode.mode.col != null) {
                     var mode = {
-                        'name' : row[processed.mode.mode.col].trim(),
+                        'name' : row[processed.mode.mode.col],
                         'thrCrs' : parseFloat(row[2]),
                         'start': rowNum,
                         'end' : false,
@@ -574,3 +581,11 @@ exports.process = function(json) {
     return processed;
 
 };
+
+function trimWhenRequired(value) {
+    var result = value;
+    if (typeof value === 'string') {
+        result = value.trim().toLowerCase()
+    }
+    return result
+}

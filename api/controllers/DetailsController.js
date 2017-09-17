@@ -119,7 +119,7 @@ module.exports = {
 
 			var markings = [];
 		  for (var k in processed.mode.modes) {
-		    markings.push({xaxis: { from: processed.mode.modes[k].start, to: processed.mode.modes[k].end },color: backgroundColours[processed.mode.modes[k].name.toLowerCase()], name: processed.mode.modes[k].name});
+		    markings.push({xaxis: { from: processed.mode.modes[k].start, to: processed.mode.modes[k].end },color: backgroundColours[processed.mode.modes[k].name], name: processed.mode.modes[k].name});
 		  }
 
 			res.contentType('text/plain');
